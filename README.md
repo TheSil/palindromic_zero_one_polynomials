@@ -1,15 +1,9 @@
 # A Factorization Result for Palindromic $0-1$ Polynomials
 
-This repository contains a Lean 4 formalization of the theorem below. The main
-formal development lives in `Proof.lean`; the Lake configuration is in
-`lakefile.lean`, and the pinned Lean version is recorded in `lean-toolchain`.
+This repository contains a Lean 4 formalization of the theorem below. The theorem
+is known in the literature, intent of this repository is to provide it's formal verification.
 
 ## Definitions and Statement
-
-The following proof is a generalization of a proof by Krasner and Ranulac
-(1937), *Sur une propriété des polynomes de la division du cercle*,
-*C. R. Acad. Sci. Paris* 204, 397--399, who treated the special case of
-polynomials of the form $x^k+\cdots+x+1$.
 
 For a polynomial
 
@@ -49,6 +43,9 @@ the first run it may also download the Lean toolchain and the pinned `mathlib4`
 dependency.
 
 ## Informal Proof
+
+The following proof is inspired by a proof for polynomials of the form $x^k+\cdots+x+1$.
+See references below.
 
 Write
 
@@ -412,6 +409,8 @@ So both $P$ and $Q$ are palindromic $0-1$ polynomials.
 
 - M. Krasner and H. Ranulac (1937), *Sur une propriété des polynomes de la
   division du cercle*, *C. R. Acad. Sci. Paris* 204, 397-399.
+- D. Raikov, *Sur une propriété des polynômes de la division du cercle*, **Rec. Math. [Mat. Sbornik] 
+  N.S.** 2(44):2 (1937), 379–382. [Math-Net.Ru](https://www.mathnet.ru/php/archive.phtml?wshow=paper&jrnid=sm&paperid=5576&option_lang=eng)
 - The theorem formalized here is a special palindromic case of the broader
   conjecture discussed in the MathOverflow question
   [Why do polynomials with coefficients 0,1 like to have only factors with 0,1 coefficients?](https://mathoverflow.net/questions/339137).
