@@ -34,11 +34,6 @@ lemma coeff_mul_eq_conv (P Q : ℝ[X]) (k : ℕ) :
   simpa [conv] using
     (Finset.Nat.sum_antidiagonal_eq_sum_range_succ (fun i j ↦ P.coeff i * Q.coeff j) k)
 
-lemma conv_nonneg {p q : ℕ → ℝ} (hp : ∀ i, 0 ≤ p i) (hq : ∀ i, 0 ≤ q i) (k : ℕ) :
-    0 ≤ conv p q k := by
-  unfold conv
-  exact Finset.sum_nonneg fun i _ ↦ mul_nonneg (hp i) (hq (k - i))
-
 lemma mul_eq_zero_or_one {a b : ℝ} (ha : a = 0 ∨ a = 1) (hb : b = 0 ∨ b = 1) :
     a * b = 0 ∨ a * b = 1 := by
   rcases ha with rfl | rfl <;> rcases hb with rfl | rfl <;> simp
@@ -114,21 +109,6 @@ lemma conv_eq_right_of_left_degree_zero {p q : ℕ → ℝ}
     intro i hi
     rw [hp_support (i + 1) (Nat.succ_pos _), zero_mul]
   simp [hzero, hp0]
-
-lemma conv_eq_zero_of_gt_total {p q : ℕ → ℝ} {m n k : ℕ}
-    (hp_support : ∀ i, m < i → p i = 0) (hq_support : ∀ i, n < i → q i = 0)
-    (hk : m + n < k) :
-    conv p q k = 0 := by
-  unfold conv
-  refine Finset.sum_eq_zero ?_
-  intro i hi
-  by_cases him : i ≤ m
-  · have hqz : q (k - i) = 0 := by
-      apply hq_support
-      omega
-    rw [hqz, mul_zero]
-  · have hpz : p i = 0 := hp_support i (Nat.lt_of_not_ge him)
-    rw [hpz, zero_mul]
 
 lemma conv_at_degree_right_decomp {p q : ℕ → ℝ} {m n : ℕ}
     (hm0 : 0 < m) (hmn : m < n) (hp_support : ∀ i, m < i → p i = 0) :
