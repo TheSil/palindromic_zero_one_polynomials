@@ -1,8 +1,8 @@
-import Mathlib.Algebra.BigOperators.Group.Finset
+import Mathlib.Algebra.BigOperators.Group.Finset.Lemmas
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
 import Mathlib.Algebra.Polynomial.Basic
 import Mathlib.Algebra.Polynomial.Coeff
-import Mathlib.Algebra.Polynomial.Degree.Definitions
+import Mathlib.Algebra.Polynomial.Degree.Defs
 import Mathlib.Algebra.Polynomial.Degree.Operations
 import Mathlib.Algebra.Polynomial.Monic
 import Mathlib.Algebra.Polynomial.Reverse
@@ -10,6 +10,7 @@ import Mathlib.Data.Finset.NatAntidiagonal
 import Mathlib.Tactic
 
 open Finset Polynomial
+open scoped BigOperators
 
 namespace ZeroOnePolyPalindromicCase
 
@@ -26,7 +27,7 @@ def IsPalindromic (p : ℝ[X]) : Prop :=
   ∀ k : ℕ, k ≤ p.natDegree → p.coeff k = p.coeff (p.natDegree - k)
 
 def conv (p q : ℕ → ℝ) (k : ℕ) : ℝ :=
-  ∑ i in Finset.range (k + 1), p i * q (k - i)
+  ∑ i ∈ Finset.range (k + 1), p i * q (k - i)
 
 lemma coeff_mul_eq_conv (P Q : ℝ[X]) (k : ℕ) :
     (P * Q).coeff k = conv P.coeff Q.coeff k := by
@@ -40,7 +41,7 @@ lemma mul_eq_zero_or_one {a b : ℝ} (ha : a = 0 ∨ a = 1) (hb : b = 0 ∨ b = 
 
 lemma exists_natCast_eq_sum_of_zero_one {s : Finset ℕ} {f : ℕ → ℝ}
     (hf : ∀ i ∈ s, f i = 0 ∨ f i = 1) :
-    ∃ t : ℕ, (t : ℝ) = ∑ i in s, f i := by
+    ∃ t : ℕ, (t : ℝ) = ∑ i ∈ s, f i := by
   classical
   refine Finset.induction_on s ?_ ?_ hf
   · intro _
@@ -51,7 +52,7 @@ lemma exists_natCast_eq_sum_of_zero_one {s : Finset ℕ} {f : ℕ → ℝ}
     rcases hf a (Finset.mem_insert_self a s) with hfa | hfa
     · exact ⟨t, by simp [Finset.sum_insert, ha, hfa, ht]⟩
     · refine ⟨t + 1, ?_⟩
-      simp [Finset.sum_insert, ha, hfa, ht, Nat.cast_add, add_assoc, add_left_comm, add_comm]
+      simp [Finset.sum_insert, ha, hfa, ht, Nat.cast_add, add_comm]
 
 lemma eq_zero_or_one_of_nonneg_add_natCast_eq_zero_or_one {x : ℝ} {t : ℕ}
     (hx : 0 ≤ x) (h : x + (t : ℝ) = 0 ∨ x + (t : ℝ) = 1) :
@@ -71,32 +72,32 @@ lemma eq_zero_or_one_of_nonneg_add_natCast_eq_zero_or_one {x : ℝ} {t : ℕ}
 
 lemma conv_decomp {p q : ℕ → ℝ} {k : ℕ} (hk : 0 < k) :
     conv p q k =
-      (∑ i in Finset.range (k - 1), p (i + 1) * q (k - (i + 1))) + p k * q 0 + p 0 * q k := by
+      (∑ i ∈ Finset.range (k - 1), p (i + 1) * q (k - (i + 1))) + p k * q 0 + p 0 * q k := by
   unfold conv
   have hsplit₁ :
-      ∑ i in Finset.range (k + 1), p i * q (k - i) =
-        (∑ i in Finset.range k, p (i + 1) * q (k - (i + 1))) + p 0 * q k := by
+      ∑ i ∈ Finset.range (k + 1), p i * q (k - i) =
+        (∑ i ∈ Finset.range k, p (i + 1) * q (k - (i + 1))) + p 0 * q k := by
     simpa [Nat.sub_zero] using
       (Finset.sum_range_succ' (f := fun i ↦ p i * q (k - i)) k)
   have hsplit₂ :
-      ∑ i in Finset.range k, p (i + 1) * q (k - (i + 1)) =
-        ∑ i in Finset.range (k - 1), p (i + 1) * q (k - (i + 1)) + p k * q 0 := by
+      ∑ i ∈ Finset.range k, p (i + 1) * q (k - (i + 1)) =
+        ∑ i ∈ Finset.range (k - 1), p (i + 1) * q (k - (i + 1)) + p k * q 0 := by
     let f : ℕ → ℝ := fun i ↦ p (i + 1) * q (k - (i + 1))
     have hk' : (k - 1) + 1 = k := by omega
     calc
-      ∑ i in Finset.range k, f i
-        = ∑ i in Finset.range ((k - 1) + 1), f i := by
+      ∑ i ∈ Finset.range k, f i
+        = ∑ i ∈ Finset.range ((k - 1) + 1), f i := by
             rw [hk']
-      _ = ∑ i in Finset.range (k - 1), f i + f (k - 1) := by
+      _ = ∑ i ∈ Finset.range (k - 1), f i + f (k - 1) := by
               rw [Finset.sum_range_succ]
-      _ = ∑ i in Finset.range (k - 1), p (i + 1) * q (k - (i + 1)) + p k * q 0 := by
+      _ = ∑ i ∈ Finset.range (k - 1), p (i + 1) * q (k - (i + 1)) + p k * q 0 := by
               have hks : (k - 1) + 1 = k := by omega
               have hk0 : k - ((k - 1) + 1) = 0 := by omega
-              simp [f, hks, hk0]
+              simp [f, hks]
   calc
-    ∑ i in Finset.range (k + 1), p i * q (k - i)
-      = (∑ i in Finset.range k, p (i + 1) * q (k - (i + 1))) + p 0 * q k := hsplit₁
-  _ = (∑ i in Finset.range (k - 1), p (i + 1) * q (k - (i + 1))) + p k * q 0 + p 0 * q k := by
+    ∑ i ∈ Finset.range (k + 1), p i * q (k - i)
+      = (∑ i ∈ Finset.range k, p (i + 1) * q (k - (i + 1))) + p 0 * q k := hsplit₁
+  _ = (∑ i ∈ Finset.range (k - 1), p (i + 1) * q (k - (i + 1))) + p k * q 0 + p 0 * q k := by
       rw [hsplit₂]
 
 lemma conv_eq_right_of_left_degree_zero {p q : ℕ → ℝ}
@@ -104,7 +105,7 @@ lemma conv_eq_right_of_left_degree_zero {p q : ℕ → ℝ}
     conv p q k = q k := by
   rw [conv, Finset.sum_range_succ']
   have hzero :
-      (∑ i in Finset.range k, p (i + 1) * q (k - (i + 1))) = 0 := by
+      (∑ i ∈ Finset.range k, p (i + 1) * q (k - (i + 1))) = 0 := by
     refine Finset.sum_eq_zero ?_
     intro i hi
     rw [hp_support (i + 1) (Nat.succ_pos _), zero_mul]
@@ -113,17 +114,17 @@ lemma conv_eq_right_of_left_degree_zero {p q : ℕ → ℝ}
 lemma conv_at_degree_right_decomp {p q : ℕ → ℝ} {m n : ℕ}
     (hm0 : 0 < m) (hmn : m < n) (hp_support : ∀ i, m < i → p i = 0) :
     conv p q n =
-      (∑ i in Finset.range (m - 1), p (i + 1) * q (n - (i + 1))) + p m * q (n - m) + p 0 * q n := by
+      (∑ i ∈ Finset.range (m - 1), p (i + 1) * q (n - (i + 1))) + p m * q (n - m) + p 0 * q n := by
   unfold conv
   have hsplit :
-      ∑ i in Finset.range (n + 1), p i * q (n - i) =
-        ∑ i in Finset.range (m + 1), p i * q (n - i) +
-          ∑ i in Finset.range (n - m), p (m + 1 + i) * q (n - (m + 1 + i)) := by
+      ∑ i ∈ Finset.range (n + 1), p i * q (n - i) =
+        ∑ i ∈ Finset.range (m + 1), p i * q (n - i) +
+          ∑ i ∈ Finset.range (n - m), p (m + 1 + i) * q (n - (m + 1 + i)) := by
     simpa [show n + 1 = (m + 1) + (n - m) by omega, add_assoc, add_left_comm, add_comm] using
       (Finset.sum_range_add (f := fun i ↦ p i * q (n - i)) (m + 1) (n - m))
   rw [hsplit]
   have htail :
-      (∑ i in Finset.range (n - m), p (m + 1 + i) * q (n - (m + 1 + i))) = 0 := by
+      (∑ i ∈ Finset.range (n - m), p (m + 1 + i) * q (n - (m + 1 + i))) = 0 := by
     refine Finset.sum_eq_zero ?_
     intro i hi
     have hpz : p (m + 1 + i) = 0 := by
@@ -132,10 +133,10 @@ lemma conv_at_degree_right_decomp {p q : ℕ → ℝ} {m n : ℕ}
     rw [hpz, zero_mul]
   rw [htail, add_zero]
   calc
-    ∑ i in Finset.range (m + 1), p i * q (n - i)
-      = (∑ i in Finset.range m, p (i + 1) * q (n - (i + 1))) + p 0 * q n := by
+    ∑ i ∈ Finset.range (m + 1), p i * q (n - i)
+      = (∑ i ∈ Finset.range m, p (i + 1) * q (n - (i + 1))) + p 0 * q n := by
           simpa [Nat.sub_zero] using (Finset.sum_range_succ' (f := fun i ↦ p i * q (n - i)) m)
-    _ = (∑ i in Finset.range (m - 1), p (i + 1) * q (n - (i + 1))) +
+    _ = (∑ i ∈ Finset.range (m - 1), p (i + 1) * q (n - (i + 1))) +
           p m * q (n - m) + p 0 * q n := by
           have hm' : m = (m - 1) + 1 := by omega
           have hnm : n - ((m - 1) + 1) = n - m := by omega
@@ -147,30 +148,30 @@ lemma conv_at_degree_right_decomp {p q : ℕ → ℝ} {m n : ℕ}
 lemma conv_high {p q : ℕ → ℝ} {m n k : ℕ}
     (hk : k ≤ m) (hmn : m ≤ n)
     (hp_support : ∀ i, m < i → p i = 0) (hq_support : ∀ i, n < i → q i = 0) :
-    conv p q (m + n - k) = ∑ i in Finset.range (k + 1), p (m - k + i) * q (n - i) := by
+    conv p q (m + n - k) = ∑ i ∈ Finset.range (k + 1), p (m - k + i) * q (n - i) := by
   unfold conv
   have hsplit₁ :
-      ∑ i in Finset.range (m + n - k + 1), p i * q (m + n - k - i) =
-        ∑ i in Finset.range (m - k), p i * q (m + n - k - i) +
-          ∑ i in Finset.range (n + 1), p (m - k + i) * q (n - i) := by
+      ∑ i ∈ Finset.range (m + n - k + 1), p i * q (m + n - k - i) =
+        ∑ i ∈ Finset.range (m - k), p i * q (m + n - k - i) +
+          ∑ i ∈ Finset.range (n + 1), p (m - k + i) * q (n - i) := by
     have hindex : ∀ i, m + n - k - (m - k + i) = n - i := by
       intro i
       omega
     calc
-      ∑ i in Finset.range (m + n - k + 1), p i * q (m + n - k - i)
-        = ∑ i in Finset.range (m - k), p i * q (m + n - k - i) +
-            ∑ i in Finset.range (n + 1), p (m - k + i) * q (m + n - k - (m - k + i)) := by
+      ∑ i ∈ Finset.range (m + n - k + 1), p i * q (m + n - k - i)
+        = ∑ i ∈ Finset.range (m - k), p i * q (m + n - k - i) +
+            ∑ i ∈ Finset.range (n + 1), p (m - k + i) * q (m + n - k - (m - k + i)) := by
               simpa [show m + n - k + 1 = (m - k) + (n + 1) by omega] using
                 (Finset.sum_range_add (f := fun i ↦ p i * q (m + n - k - i)) (m - k) (n + 1))
-      _ = ∑ i in Finset.range (m - k), p i * q (m + n - k - i) +
-            ∑ i in Finset.range (n + 1), p (m - k + i) * q (n - i) := by
+      _ = ∑ i ∈ Finset.range (m - k), p i * q (m + n - k - i) +
+            ∑ i ∈ Finset.range (n + 1), p (m - k + i) * q (n - i) := by
               congr 1
               refine Finset.sum_congr rfl ?_
               intro i hi
               rw [hindex i]
   rw [hsplit₁]
   have hhead :
-      (∑ i in Finset.range (m - k), p i * q (m + n - k - i)) = 0 := by
+      (∑ i ∈ Finset.range (m - k), p i * q (m + n - k - i)) = 0 := by
     refine Finset.sum_eq_zero ?_
     intro i hi
     have hi_lt : i < m - k := Finset.mem_range.mp hi
@@ -180,14 +181,14 @@ lemma conv_high {p q : ℕ → ℝ} {m n k : ℕ}
     rw [hqz, mul_zero]
   rw [hhead, zero_add]
   have hsplit₂ :
-      ∑ i in Finset.range (n + 1), p (m - k + i) * q (n - i) =
-        ∑ i in Finset.range (k + 1), p (m - k + i) * q (n - i) +
-          ∑ i in Finset.range (n - k), p (m - k + (k + 1 + i)) * q (n - (k + 1 + i)) := by
+      ∑ i ∈ Finset.range (n + 1), p (m - k + i) * q (n - i) =
+        ∑ i ∈ Finset.range (k + 1), p (m - k + i) * q (n - i) +
+          ∑ i ∈ Finset.range (n - k), p (m - k + (k + 1 + i)) * q (n - (k + 1 + i)) := by
     simpa [show n + 1 = (k + 1) + (n - k) by omega] using
       (Finset.sum_range_add (f := fun i ↦ p (m - k + i) * q (n - i)) (k + 1) (n - k))
   rw [hsplit₂]
   have htail :
-      (∑ i in Finset.range (n - k), p (m - k + (k + 1 + i)) * q (n - (k + 1 + i))) = 0 := by
+      (∑ i ∈ Finset.range (n - k), p (m - k + (k + 1 + i)) * q (n - (k + 1 + i))) = 0 := by
     refine Finset.sum_eq_zero ?_
     intro i hi
     have hpz : p (m - k + (k + 1 + i)) = 0 := by
@@ -200,34 +201,34 @@ lemma conv_high_decomp {p q : ℕ → ℝ} {m n k : ℕ}
     (hk0 : 0 < k) (hk : k ≤ m) (hmn : m ≤ n)
     (hp_support : ∀ i, m < i → p i = 0) (hq_support : ∀ i, n < i → q i = 0) :
     conv p q (m + n - k) =
-      (∑ i in Finset.range (k - 1), p (m - (i + 1)) * q (n - k + (i + 1))) +
+      (∑ i ∈ Finset.range (k - 1), p (m - (i + 1)) * q (n - k + (i + 1))) +
         p m * q (n - k) + p (m - k) * q n := by
   rw [conv_high hk hmn hp_support hq_support]
   have hsplit₁ :
-      ∑ i in Finset.range (k + 1), p (m - k + i) * q (n - i) =
-        (∑ i in Finset.range k, p (m - k + (i + 1)) * q (n - (i + 1))) + p (m - k) * q n := by
+      ∑ i ∈ Finset.range (k + 1), p (m - k + i) * q (n - i) =
+        (∑ i ∈ Finset.range k, p (m - k + (i + 1)) * q (n - (i + 1))) + p (m - k) * q n := by
     simpa [Nat.sub_zero] using
       (Finset.sum_range_succ' (f := fun i ↦ p (m - k + i) * q (n - i)) k)
   have hsplit₂ :
-      ∑ i in Finset.range k, p (m - k + (i + 1)) * q (n - (i + 1)) =
-        ∑ i in Finset.range (k - 1), p (m - k + (i + 1)) * q (n - (i + 1)) +
+      ∑ i ∈ Finset.range k, p (m - k + (i + 1)) * q (n - (i + 1)) =
+        ∑ i ∈ Finset.range (k - 1), p (m - k + (i + 1)) * q (n - (i + 1)) +
           p (m - k + ((k - 1) + 1)) * q (n - ((k - 1) + 1)) := by
     let f : ℕ → ℝ := fun i ↦ p (m - k + (i + 1)) * q (n - (i + 1))
     have hk' : (k - 1) + 1 = k := by omega
     calc
-      ∑ i in Finset.range k, f i
-        = ∑ i in Finset.range ((k - 1) + 1), f i := by
+      ∑ i ∈ Finset.range k, f i
+        = ∑ i ∈ Finset.range ((k - 1) + 1), f i := by
             rw [hk']
-      _ = ∑ i in Finset.range (k - 1), f i + f (k - 1) := by
+      _ = ∑ i ∈ Finset.range (k - 1), f i + f (k - 1) := by
               rw [Finset.sum_range_succ]
   have hmiddle :
-      ∑ i in Finset.range (k - 1), p (m - k + (i + 1)) * q (n - (i + 1)) =
-        ∑ i in Finset.range (k - 1), p (m - (i + 1)) * q (n - k + (i + 1)) := by
+      ∑ i ∈ Finset.range (k - 1), p (m - k + (i + 1)) * q (n - (i + 1)) =
+        ∑ i ∈ Finset.range (k - 1), p (m - (i + 1)) * q (n - k + (i + 1)) := by
     have hreflect := Finset.sum_range_reflect
       (f := fun i ↦ p (m - (i + 1)) * q (n - k + (i + 1))) (k - 1)
     calc
-      ∑ i in Finset.range (k - 1), p (m - k + (i + 1)) * q (n - (i + 1))
-        = ∑ i in Finset.range (k - 1),
+      ∑ i ∈ Finset.range (k - 1), p (m - k + (i + 1)) * q (n - (i + 1))
+        = ∑ i ∈ Finset.range (k - 1),
             p (m - (k - (i + 1))) * q (n - k + (k - (i + 1))) := by
               refine Finset.sum_congr rfl ?_
               intro i hi
@@ -236,11 +237,11 @@ lemma conv_high_decomp {p q : ℕ → ℝ} {m n k : ℕ}
               · omega
               · have hkn : k ≤ n := le_trans hk hmn
                 omega
-      _ = ∑ i in Finset.range (k - 1), p (m - (i + 1)) * q (n - k + (i + 1)) := by
+      _ = ∑ i ∈ Finset.range (k - 1), p (m - (i + 1)) * q (n - k + (i + 1)) := by
               have hleft :
-                  ∑ i in Finset.range (k - 1),
+                  ∑ i ∈ Finset.range (k - 1),
                       p (m - (k - (i + 1))) * q (n - k + (k - (i + 1))) =
-                    ∑ i in Finset.range (k - 1),
+                    ∑ i ∈ Finset.range (k - 1),
                       p (m - (k - 1 - 1 - i + 1)) * q (n - k + (k - 1 - 1 - i + 1)) := by
                         refine Finset.sum_congr rfl ?_
                         intro i hi
@@ -251,12 +252,12 @@ lemma conv_high_decomp {p q : ℕ → ℝ} {m n k : ℕ}
   have hmk : m - k + ((k - 1) + 1) = m := by omega
   have hnk : n - ((k - 1) + 1) = n - k := by omega
   calc
-    ∑ i in Finset.range (k + 1), p (m - k + i) * q (n - i)
-      = (∑ i in Finset.range k, p (m - k + (i + 1)) * q (n - (i + 1))) + p (m - k) * q n := hsplit₁
-    _ = (∑ i in Finset.range (k - 1), p (m - k + (i + 1)) * q (n - (i + 1))) +
+    ∑ i ∈ Finset.range (k + 1), p (m - k + i) * q (n - i)
+      = (∑ i ∈ Finset.range k, p (m - k + (i + 1)) * q (n - (i + 1))) + p (m - k) * q n := hsplit₁
+    _ = (∑ i ∈ Finset.range (k - 1), p (m - k + (i + 1)) * q (n - (i + 1))) +
           p (m - k + ((k - 1) + 1)) * q (n - ((k - 1) + 1)) + p (m - k) * q n := by
           rw [hsplit₂]
-    _ = (∑ i in Finset.range (k - 1), p (m - (i + 1)) * q (n - k + (i + 1))) +
+    _ = (∑ i ∈ Finset.range (k - 1), p (m - (i + 1)) * q (n - k + (i + 1))) +
           p m * q (n - k) + p (m - k) * q n := by
           rw [hmiddle, hmk, hnk]
 
@@ -418,15 +419,15 @@ theorem ordered_zero_one_of_palindromic_conv {p q : ℕ → ℝ} {m n : ℕ}
       have hnm : n ≤ m := le_of_not_gt hmn'
       have hEq : m = n := le_antisymm hmn hnm
       have hsum_nonneg :
-          0 ≤ ∑ i in Finset.range (m - 1), p (i + 1) * q (m - (i + 1)) := by
+          0 ≤ ∑ i ∈ Finset.range (m - 1), p (i + 1) * q (m - (i + 1)) := by
         exact Finset.sum_nonneg fun i _ ↦ mul_nonneg (hp_nonneg (i + 1)) (hq_nonneg (m - (i + 1)))
-      have hconvm : conv p q m = (∑ i in Finset.range (m - 1), p (i + 1) * q (m - (i + 1))) + 2 := by
+      have hconvm : conv p q m = (∑ i ∈ Finset.range (m - 1), p (i + 1) * q (m - (i + 1))) + 2 := by
         have hqm : q m = 1 := by simpa [hEq] using hqn
         calc
           conv p q m =
-              (∑ i in Finset.range (m - 1), p (i + 1) * q (m - (i + 1))) + p m * q 0 + p 0 * q m := by
+              (∑ i ∈ Finset.range (m - 1), p (i + 1) * q (m - (i + 1))) + p m * q 0 + p 0 * q m := by
                 simpa using conv_decomp (p := p) (q := q) hm_pos
-          _ = (∑ i in Finset.range (m - 1), p (i + 1) * q (m - (i + 1))) + 2 := by
+          _ = (∑ i ∈ Finset.range (m - 1), p (i + 1) * q (m - (i + 1))) + 2 := by
                 rw [hpm, hq0, hp0, hqm]
                 ring
       have hge : (2 : ℝ) ≤ conv p q m := by
@@ -435,7 +436,7 @@ theorem ordered_zero_one_of_palindromic_conv {p q : ℕ → ℝ} {m n : ℕ}
       rcases h01 m with h0 | h1
       · linarith
       · linarith
-    let S₁ : ℝ := ∑ i in Finset.range (m - 1), p (i + 1) * q (m - (i + 1))
+    let S₁ : ℝ := ∑ i ∈ Finset.range (m - 1), p (i + 1) * q (m - (i + 1))
     have hS₁_nonneg : 0 ≤ S₁ := by
       unfold S₁
       exact Finset.sum_nonneg fun i _ ↦ mul_nonneg (hp_nonneg (i + 1)) (hq_nonneg (m - (i + 1)))
@@ -443,10 +444,10 @@ theorem ordered_zero_one_of_palindromic_conv {p q : ℕ → ℝ} {m n : ℕ}
       unfold S₁
       calc
         conv p q m =
-            (∑ i in Finset.range (m - 1), p (i + 1) * q (m - (i + 1))) + p m * q 0 + p 0 * q m := by
+            (∑ i ∈ Finset.range (m - 1), p (i + 1) * q (m - (i + 1))) + p m * q 0 + p 0 * q m := by
               simpa using conv_decomp (p := p) (q := q) hm_pos
         _ = S₁ + 1 + q m := by
-              simp [S₁, hpm, hq0, hp0, add_assoc, add_left_comm, add_comm]
+              simp [S₁, hpm, hq0, hp0, add_comm]
     have hconvm_eq_one : conv p q m = 1 := by
       have hge : (1 : ℝ) ≤ conv p q m := by
         rw [hconvm]
@@ -466,7 +467,7 @@ theorem ordered_zero_one_of_palindromic_conv {p q : ℕ → ℝ} {m n : ℕ}
         intro i hi
         exact mul_nonneg (hp_nonneg (i + 1)) (hq_nonneg (m - (i + 1)))
       exact (Finset.sum_eq_zero_iff_of_nonneg hterm_nonneg).1 hS₁_zero
-    let S₂ : ℝ := ∑ i in Finset.range (m - 1), p (i + 1) * q (n - (i + 1))
+    let S₂ : ℝ := ∑ i ∈ Finset.range (m - 1), p (i + 1) * q (n - (i + 1))
     have hS₂_nonneg : 0 ≤ S₂ := by
       unfold S₂
       exact Finset.sum_nonneg fun i _ ↦ mul_nonneg (hp_nonneg (i + 1)) (hq_nonneg (n - (i + 1)))
@@ -474,10 +475,10 @@ theorem ordered_zero_one_of_palindromic_conv {p q : ℕ → ℝ} {m n : ℕ}
       unfold S₂
       calc
         conv p q n =
-            (∑ i in Finset.range (m - 1), p (i + 1) * q (n - (i + 1))) + p m * q (n - m) + p 0 * q n := by
+            (∑ i ∈ Finset.range (m - 1), p (i + 1) * q (n - (i + 1))) + p m * q (n - m) + p 0 * q n := by
               simpa using conv_at_degree_right_decomp (p := p) (q := q) hm_pos hm_lt_n hp_support
         _ = S₂ + q (n - m) + 1 := by
-              simp [S₂, hpm, hqn, hp0, add_assoc, add_left_comm, add_comm]
+              simp [S₂, hpm, hqn, hp0, add_left_comm, add_comm]
     have hconvn_eq_one : conv p q n = 1 := by
       have hpalm := hpal m (by omega)
       have hpalm' : conv p q m = conv p q n := by
@@ -509,7 +510,7 @@ theorem ordered_zero_one_of_palindromic_conv {p q : ℕ → ℝ} {m n : ℕ}
         · simpa using hq0.trans hqn.symm
       · have hk_pos : 0 < k := Nat.pos_of_ne_zero hk0
         have hS_nat :
-            ∃ t : ℕ, (t : ℝ) = ∑ i in Finset.range (k - 1), p (i + 1) * q (k - (i + 1)) := by
+            ∃ t : ℕ, (t : ℝ) = ∑ i ∈ Finset.range (k - 1), p (i + 1) * q (k - (i + 1)) := by
           apply exists_natCast_eq_sum_of_zero_one
           intro i hi
           have hi_lt : i < k - 1 := Finset.mem_range.mp hi
@@ -521,32 +522,32 @@ theorem ordered_zero_one_of_palindromic_conv {p q : ℕ → ℝ} {m n : ℕ}
             ⟨_, _, _, hqbit⟩
           exact mul_eq_zero_or_one hpbit hqbit
         have hconv_low :
-            conv p q k = (∑ i in Finset.range (k - 1), p (i + 1) * q (k - (i + 1))) + p k + q k := by
+            conv p q k = (∑ i ∈ Finset.range (k - 1), p (i + 1) * q (k - (i + 1))) + p k + q k := by
           calc
             conv p q k =
-                (∑ i in Finset.range (k - 1), p (i + 1) * q (k - (i + 1))) + p k * q 0 + p 0 * q k := by
+                (∑ i ∈ Finset.range (k - 1), p (i + 1) * q (k - (i + 1))) + p k * q 0 + p 0 * q k := by
                   simpa using conv_decomp (p := p) (q := q) hk_pos
-            _ = (∑ i in Finset.range (k - 1), p (i + 1) * q (k - (i + 1))) + p k + q k := by
-                  simp [hq0, hp0, add_assoc, add_left_comm, add_comm]
+            _ = (∑ i ∈ Finset.range (k - 1), p (i + 1) * q (k - (i + 1))) + p k + q k := by
+                  simp [hq0, hp0, add_left_comm, add_comm]
         have hconv_high :
             conv p q (m + n - k) =
-              (∑ i in Finset.range (k - 1), p (m - (i + 1)) * q (n - k + (i + 1))) +
+              (∑ i ∈ Finset.range (k - 1), p (m - (i + 1)) * q (n - k + (i + 1))) +
                 p (m - k) + q (n - k) := by
           calc
             conv p q (m + n - k) =
-                (∑ i in Finset.range (k - 1), p (m - (i + 1)) * q (n - k + (i + 1))) +
+                (∑ i ∈ Finset.range (k - 1), p (m - (i + 1)) * q (n - k + (i + 1))) +
                   p m * q (n - k) + p (m - k) * q n := by
                     simpa using conv_high_decomp (p := p) (q := q) hk_pos (by omega) hmn hp_support hq_support
-            _ = (∑ i in Finset.range (k - 1), p (m - (i + 1)) * q (n - k + (i + 1))) +
+            _ = (∑ i ∈ Finset.range (k - 1), p (m - (i + 1)) * q (n - k + (i + 1))) +
                   p (m - k) + q (n - k) := by
-                    simp [hpm, hqn, add_assoc, add_left_comm, add_comm]
+                    simp [hpm, hqn, add_left_comm, add_comm]
         have hsum_eq :
             p k + q k = p (m - k) + q (n - k) := by
           have hpalk := hpal k (by omega)
           rw [hconv_low, hconv_high] at hpalk
           have hsum_middle :
-              ∑ i in Finset.range (k - 1), p (m - (i + 1)) * q (n - k + (i + 1)) =
-                ∑ i in Finset.range (k - 1), p (i + 1) * q (k - (i + 1)) := by
+              ∑ i ∈ Finset.range (k - 1), p (m - (i + 1)) * q (n - k + (i + 1)) =
+                ∑ i ∈ Finset.range (k - 1), p (i + 1) * q (k - (i + 1)) := by
             refine Finset.sum_congr rfl ?_
             intro i hi
             have hi_lt : i < k - 1 := Finset.mem_range.mp hi
@@ -670,7 +671,7 @@ theorem ordered_zero_one_of_palindromic_conv {p q : ℕ → ℝ} {m n : ℕ}
           simpa [hi0] using hq0
         · have hi_pos : 0 < i := Nat.pos_of_ne_zero hi0
           have hN_nat :
-              ∃ t : ℕ, (t : ℝ) = ∑ a in Finset.range i, p (a + 1) * q (i - (a + 1)) := by
+              ∃ t : ℕ, (t : ℝ) = ∑ a ∈ Finset.range i, p (a + 1) * q (i - (a + 1)) := by
             apply exists_natCast_eq_sum_of_zero_one
             intro a ha
             have ha_lt : a < i := Finset.mem_range.mp ha
@@ -679,9 +680,9 @@ theorem ordered_zero_one_of_palindromic_conv {p q : ℕ → ℝ} {m n : ℕ}
             exact mul_eq_zero_or_one (hp_bit (a + 1)) (ih (i - (a + 1)) hprev)
           rcases hN_nat with ⟨t, ht⟩
           have hconv_i :
-              conv p q i = (∑ a in Finset.range i, p (a + 1) * q (i - (a + 1))) + q i := by
+              conv p q i = (∑ a ∈ Finset.range i, p (a + 1) * q (i - (a + 1))) + q i := by
             rw [conv, Finset.sum_range_succ']
-            simp [hp0, add_assoc, add_left_comm, add_comm]
+            simp [hp0, add_comm]
           have h01i : q i + (t : ℝ) = 0 ∨ q i + (t : ℝ) = 1 := by
             simpa [hconv_i, ht, add_assoc, add_left_comm, add_comm] using h01 i
           exact eq_zero_or_one_of_nonneg_add_natCast_eq_zero_or_one (hq_nonneg i) h01i
