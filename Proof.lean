@@ -1,13 +1,4 @@
-import Mathlib.Algebra.BigOperators.Group.Finset.Lemmas
-import Mathlib.Algebra.Order.BigOperators.Group.Finset
-import Mathlib.Algebra.Polynomial.Basic
-import Mathlib.Algebra.Polynomial.Coeff
-import Mathlib.Algebra.Polynomial.Degree.Defs
-import Mathlib.Algebra.Polynomial.Degree.Operations
-import Mathlib.Algebra.Polynomial.Monic
-import Mathlib.Algebra.Polynomial.Reverse
-import Mathlib.Data.Finset.NatAntidiagonal
-import Mathlib.Tactic
+import Mathlib
 
 open Finset Polynomial
 open scoped BigOperators
@@ -92,7 +83,6 @@ lemma conv_decomp {p q : ℕ → ℝ} {k : ℕ} (hk : 0 < k) :
               rw [Finset.sum_range_succ]
       _ = ∑ i ∈ Finset.range (k - 1), p (i + 1) * q (k - (i + 1)) + p k * q 0 := by
               have hks : (k - 1) + 1 = k := by omega
-              have hk0 : k - ((k - 1) + 1) = 0 := by omega
               simp [f, hks]
   calc
     ∑ i ∈ Finset.range (k + 1), p i * q (k - i)
@@ -107,7 +97,7 @@ lemma conv_eq_right_of_left_degree_zero {p q : ℕ → ℝ}
   have hzero :
       (∑ i ∈ Finset.range k, p (i + 1) * q (k - (i + 1))) = 0 := by
     refine Finset.sum_eq_zero ?_
-    intro i hi
+    intro i _
     rw [hp_support (i + 1) (Nat.succ_pos _), zero_mul]
   simp [hzero, hp0]
 
@@ -126,7 +116,7 @@ lemma conv_at_degree_right_decomp {p q : ℕ → ℝ} {m n : ℕ}
   have htail :
       (∑ i ∈ Finset.range (n - m), p (m + 1 + i) * q (n - (m + 1 + i))) = 0 := by
     refine Finset.sum_eq_zero ?_
-    intro i hi
+    intro i _
     have hpz : p (m + 1 + i) = 0 := by
       apply hp_support
       omega
@@ -167,7 +157,7 @@ lemma conv_high {p q : ℕ → ℝ} {m n k : ℕ}
             ∑ i ∈ Finset.range (n + 1), p (m - k + i) * q (n - i) := by
               congr 1
               refine Finset.sum_congr rfl ?_
-              intro i hi
+              intro i _
               rw [hindex i]
   rw [hsplit₁]
   have hhead :
@@ -190,7 +180,7 @@ lemma conv_high {p q : ℕ → ℝ} {m n k : ℕ}
   have htail :
       (∑ i ∈ Finset.range (n - k), p (m - k + (k + 1 + i)) * q (n - (k + 1 + i))) = 0 := by
     refine Finset.sum_eq_zero ?_
-    intro i hi
+    intro i _
     have hpz : p (m - k + (k + 1 + i)) = 0 := by
       apply hp_support
       omega
@@ -282,8 +272,7 @@ lemma constant_coeffs_one_of_palindromic_zero_one_ordered {P Q : ℝ[X]}
       rw [hP0, one_mul] at hprod
       exact hprod
     exact ⟨hP0, hQ0⟩
-  · have hPdeg_pos : 0 < P.natDegree := Nat.pos_of_ne_zero hPdeg0
-    have hP0_le_conv : P.coeff 0 ≤ conv P.coeff Q.coeff Q.natDegree := by
+  · have hP0_le_conv : P.coeff 0 ≤ conv P.coeff Q.coeff Q.natDegree := by
       unfold conv
       have hle :=
         Finset.single_le_sum
@@ -424,9 +413,6 @@ theorem ordered_zero_one_of_palindromic_conv {p q : ℕ → ℝ} {m n : ℕ}
           _ = (∑ i ∈ Finset.range (m - 1), p (i + 1) * q (m - (i + 1))) + 2 := by
                 rw [hpm, hq0, hp0, hqm]
                 ring
-      have hge : (2 : ℝ) ≤ conv p q m := by
-        rw [hconvm]
-        linarith
       rcases h01 m with h0 | h1
       · linarith
       · linarith
@@ -453,12 +439,11 @@ theorem ordered_zero_one_of_palindromic_conv {p q : ℕ → ℝ} {m n : ℕ}
       rw [hconvm] at hconvm_eq_one
       linarith
     have hS₁_zero : S₁ = 0 := (add_eq_zero_iff_of_nonneg hS₁_nonneg (hq_nonneg m)).1 hS₁_qm_zero |>.1
-    have hqm_zero : q m = 0 := (add_eq_zero_iff_of_nonneg hS₁_nonneg (hq_nonneg m)).1 hS₁_qm_zero |>.2
     have hdiag₁ :
         ∀ i ∈ Finset.range (m - 1), p (i + 1) * q (m - (i + 1)) = 0 := by
       have hterm_nonneg :
           ∀ i ∈ Finset.range (m - 1), 0 ≤ p (i + 1) * q (m - (i + 1)) := by
-        intro i hi
+        intro i _
         exact mul_nonneg (hp_nonneg (i + 1)) (hq_nonneg (m - (i + 1)))
       exact (Finset.sum_eq_zero_iff_of_nonneg hterm_nonneg).1 hS₁_zero
     let S₂ : ℝ := ∑ i ∈ Finset.range (m - 1), p (i + 1) * q (n - (i + 1))
@@ -482,13 +467,11 @@ theorem ordered_zero_one_of_palindromic_conv {p q : ℕ → ℝ} {m n : ℕ}
       rw [hconvn] at hconvn_eq_one
       linarith
     have hS₂_zero : S₂ = 0 := (add_eq_zero_iff_of_nonneg hS₂_nonneg (hq_nonneg (n - m))).1 hS₂_qnm_zero |>.1
-    have hqnm_zero : q (n - m) = 0 :=
-      (add_eq_zero_iff_of_nonneg hS₂_nonneg (hq_nonneg (n - m))).1 hS₂_qnm_zero |>.2
     have hdiag₂ :
         ∀ i ∈ Finset.range (m - 1), p (i + 1) * q (n - (i + 1)) = 0 := by
       have hterm_nonneg :
           ∀ i ∈ Finset.range (m - 1), 0 ≤ p (i + 1) * q (n - (i + 1)) := by
-        intro i hi
+        intro i _
         exact mul_nonneg (hp_nonneg (i + 1)) (hq_nonneg (n - (i + 1)))
       exact (Finset.sum_eq_zero_iff_of_nonneg hterm_nonneg).1 hS₂_zero
     let Good : ℕ → Prop := fun k ↦
@@ -577,9 +560,7 @@ theorem ordered_zero_one_of_palindromic_conv {p q : ℕ → ℝ} {m n : ℕ}
           refine ⟨?_, ?_, Or.inl hpkqk.1, Or.inl hpkqk.2⟩
           · simp [hpkqk.1, hpmqnk.1]
           · simp [hpkqk.2, hpmqnk.2]
-        · have hhigh1 : p (m - k) + q (n - k) = 1 := by
-            linarith
-          have hk_range : k - 1 ∈ Finset.range (m - 1) := by
+        · have hk_range : k - 1 ∈ Finset.range (m - 1) := by
             exact Finset.mem_range.mpr (by omega)
           have hmk_range : m - k - 1 ∈ Finset.range (m - 1) := by
             exact Finset.mem_range.mpr (by omega)
@@ -635,8 +616,7 @@ theorem ordered_zero_one_of_palindromic_conv {p q : ℕ → ℝ} {m n : ℕ}
       by_cases him : m < i
       · left
         exact hp_support i him
-      · have hi_le_m : i ≤ m := le_of_not_gt him
-        by_cases hi_half : i ≤ m / 2
+      · by_cases hi_half : i ≤ m / 2
         · rcases hgood i hi_half with ⟨_, _, hpbit, _⟩
           exact hpbit
         · have hmir_half : m - i ≤ m / 2 := by
@@ -663,8 +643,7 @@ theorem ordered_zero_one_of_palindromic_conv {p q : ℕ → ℝ} {m n : ℕ}
       · by_cases hi0 : i = 0
         · right
           simpa [hi0] using hq0
-        · have hi_pos : 0 < i := Nat.pos_of_ne_zero hi0
-          have hN_nat :
+        · have hN_nat :
               ∃ t : ℕ, (t : ℝ) = ∑ a ∈ Finset.range i, p (a + 1) * q (i - (a + 1)) := by
             apply exists_natCast_eq_sum_of_zero_one
             intro a ha
