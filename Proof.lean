@@ -268,18 +268,12 @@ lemma constant_coeffs_one_of_palindromic_zero_one_ordered {P Q : ℝ[X]}
     P.coeff 0 = 1 ∧ Q.coeff 0 = 1 := by
   have hdegPQ : (P * Q).natDegree = P.natDegree + Q.natDegree := hPmonic.natDegree_mul hQmonic
   have htop : (P * Q).coeff (P.natDegree + Q.natDegree) = 1 := by
-    rw [Polynomial.coeff_mul_add_eq_of_natDegree_le (le_rfl : P.natDegree ≤ P.natDegree)
-      (le_rfl : Q.natDegree ≤ Q.natDegree)]
-    simp [hPmonic.coeff_natDegree, hQmonic.coeff_natDegree]
+    simpa [hdegPQ] using (hPmonic.mul hQmonic).coeff_natDegree
   have hR0 : (P * Q).coeff 0 = 1 := by
     have hpal0 := hpal 0 (Nat.zero_le _)
     simpa [IsPalindromic, hdegPQ, htop] using hpal0
   have hprod : P.coeff 0 * Q.coeff 0 = 1 := by
-    calc
-      P.coeff 0 * Q.coeff 0 = (P * Q).coeff 0 := by
-        symm
-        simp
-      _ = 1 := hR0
+    simpa [Polynomial.mul_coeff_zero] using hR0
   by_cases hPdeg0 : P.natDegree = 0
   · have hP_eq_one : P = 1 := (hPmonic.natDegree_eq_zero).mp hPdeg0
     have hP0 : P.coeff 0 = 1 := by
