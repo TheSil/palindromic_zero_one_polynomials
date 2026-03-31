@@ -3,7 +3,7 @@
 This repository contains a Lean 4 formalization of the theorem below. The theorem
 is known in the literature, intent of this repository is to provide it's formal verification.
 
-## Definitions and Statement
+## Definitions
 
 For a polynomial
 
@@ -24,7 +24,9 @@ $$
 f^\ast=f.
 $$
 
-**Theorem.** Let $P$ and $Q$ be monic polynomials with nonnegative coefficients.
+## Theorem
+
+Let $P$ and $Q$ be monic polynomials with nonnegative real coefficients.
 If $R(x)=P(x)Q(x)$ is a palindromic $0-1$ polynomial, then $P$ and $Q$ are
 also palindromic $0-1$ polynomials.
 
