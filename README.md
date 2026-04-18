@@ -55,6 +55,37 @@ case $m = 0$ is trivial, since then $P = 1$ and $Q = R$. Palindromic
 symmetry means $R_k = R_{m+n-k}$ throughout. Monicity gives
 $p_m = q_n = 1$, hence $R_{m+n} = 1$.
 
+It is convenient to picture the coefficients of $PQ$ through the
+$(m{+}1)\times(n{+}1)$ grid of pairwise products $p_i q_j$; the
+coefficient $R_k$ is then the sum along the anti-diagonal $i+j=k$.
+The four extreme corners of this grid, and the two anti-diagonals at
+$i+j=m$ and $i+j=n$, are the only geometric features used below.
+
+```
+              q_0   q_1   q_2   ...   q_{n-1}   q_n
+            +----------------------------------------+
+   p_0      |  *     .     .    ...     .         *  |
+            |                                        |
+   p_1      |  .     .     .    ...     .         .  |
+            |                                        |
+    :       |              .                         |
+            |                                        |
+   p_{m-1}  |  .     .     .    ...     .         .  |
+            |                                        |
+   p_m      |  *     .     .    ...     .         *  |
+            +----------------------------------------+
+```
+
+Cell $(i, j)$ holds the product $p_i q_j$; the coefficient $R_k$ is
+the sum along the anti-diagonal $i + j = k$. The four starred corners
+are the singleton diagonals $R_0 = p_0 q_0$ and $R_{m+n} = p_m q_n$,
+together with the two extreme terms $p_m q_0$ (in the anti-diagonal
+$R_m$) and $p_0 q_n$ (in the anti-diagonal $R_n$); these are all
+equal to $1$ after Step 1. Step 2 focuses on the two anti-diagonals
+$i+j=m$ and $i+j=n$ (running from corner $(0,m)$ to $(m,0)$ and from
+$(0,n)$ to $(m,n-m)$ respectively), whose sums $R_m$ and $R_n$ must
+agree by palindromicity.
+
 ### Step 1 (corner coefficients)
 
 From $R_0 = R_{m+n} = 1$ we get $p_0 q_0 = 1$. The $i = 0$ summand of
