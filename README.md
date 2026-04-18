@@ -49,363 +49,126 @@ dependency.
 The following proof is inspired by a proof for polynomials of the form $x^k+\cdots+x+1$.
 See references below.
 
-Write
+Write $P = \sum p_k x^k$, $Q = \sum q_k x^k$, $R = PQ$, $m = \deg P$,
+$n = \deg Q$. Assume without loss of generality that $m \le n$; the
+case $m = 0$ is trivial, since then $P = 1$ and $Q = R$. Palindromic
+symmetry means $R_k = R_{m+n-k}$ throughout. Monicity gives
+$p_m = q_n = 1$, hence $R_{m+n} = 1$.
 
-$$
-P(x)=\sum_{i=0}^m p_i x^i,
-\qquad
-Q(x)=\sum_{j=0}^n q_j x^j
-$$
-
-and
-
-$$
-R(x)=P(x)Q(x)=\sum_{k=0}^{m+n} r_k x^k.
-$$
-
-Since $P$ and $Q$ are monic, we have
-
-$$
-p_m=q_n=1.
-$$
-
-After swapping $P$ and $Q$ if necessary, assume $m\le n$.
-
-If $m=0$, then $P=1$, hence $Q=R$, and the conclusion is immediate. Thus we may
-assume
-
-$$
-m>0.
-$$
-
-Because $R$ is monic and palindromic, its constant term equals its leading
-coefficient, so
-
-$$
-r_0=r_{m+n}=1.
-$$
-
-The diagonal $k=n$ contains the term
-
-$$
-p_0q_n=p_0,
-$$
-
-hence
-
-$$
-p_0\le r_n\le 1.
-$$
-
-Similarly, the diagonal $k=m$ contains the term
-
-$$
-p_mq_0=q_0,
-$$
-
-so
-
-$$
-q_0\le r_m\le 1.
-$$
-
-Since
-
-$$
-r_0=p_0q_0=1,
-$$
-
-it follows that
-
-$$
-p_0=q_0=1.
-$$
-
-For each $k$,
-
-$$
-r_k=\sum_{i+j=k} p_i q_j.
-$$
-
-All summands are nonnegative and $r_k\le 1$, so every product $p_iq_j$
-appearing in such a sum satisfies
-
-$$
-p_i q_j \le 1.
-$$
-
-We first show that $m<n$. Indeed, if $m=n>0$, then the coefficient $r_m$
-contains the two distinct terms
-
-$$
-p_0 q_m = q_m = 1,
-\qquad
-p_m q_0 = 1,
-$$
-
-so $r_m\ge 2$, impossible. Hence $m<n$.
-
-Now consider the diagonal $k=m$. It contains the terms
-
-$$
-p_0 q_m = q_m
-\qquad\text{and}\qquad
-p_m q_0 = 1,
-$$
-
-so
-
-$$
-r_m \ge q_m+1.
-$$
-
-Since $r_m\le 1$, it follows that
-
-$$
-q_m=0,
-\qquad
-r_m=1,
-$$
-
-and all the other terms on that diagonal must vanish:
-
-**(1)**
-
-$$
-p_i q_{m-i}=0
-\qquad
-(1\le i\le m-1).
-$$
-
-By palindromicity,
-
-$$
-r_n=r_m=1.
-$$
-
-The diagonal $k=n$ contains the terms
-
-$$
-p_0 q_n=1
-\qquad\text{and}\qquad
-p_m q_{n-m}=q_{n-m},
-$$
-
-hence
-
-$$
-q_{n-m}=0,
-$$
-
-and again all remaining terms on that diagonal vanish:
-
-**(2)**
-
-$$
-p_i q_{n-i}=0
-\qquad
-(1\le i\le m-1).
-$$
-
-We claim, by induction on $k=0,1,\dots,\lfloor m/2\rfloor$, that
-
-$$
-p_k,p_{m-k},q_k,q_{n-k}\in\lbrace 0,1\rbrace,
-\qquad
-p_k=p_{m-k},
-\qquad
-q_k=q_{n-k}.
-$$
-
-For $k=0$, this is exactly the normalization
-
-$$
-p_0=p_m=q_0=q_n=1.
-$$
-
-Assume the claim holds for all smaller indices, and fix $k\ge 1$. Set
-
-$$
-S=\sum_{i=1}^{k-1} p_i q_{k-i}.
-$$
-
-By the induction hypothesis, every term in this sum is either $0$ or $1$, so
-$S$ is a nonnegative integer. We have
-
-$$
-r_k = p_k + q_k + S.
-$$
-
-Similarly,
-
-$$
-r_{m+n-k}=p_{m-k}+q_{n-k}+S',
-$$
-
-where
-
-$$
-S'=\sum_{i=1}^{k-1} p_{m-i} q_{\,n-k+i}.
-$$
-
-By the induction hypothesis,
-
-$$
-p_{m-i}=p_i
-\qquad\text{and}\qquad
-q_{\,n-k+i}=q_{k-i},
-$$
-
-so $S'=S$. Since $R$ is palindromic,
-
-$$
-r_k=r_{m+n-k},
-$$
-
-and therefore
-
-$$
-p_k+q_k=p_{m-k}+q_{n-k}=:T.
-$$
-
-Because
-
-$$
-T=r_k-S,
-$$
-
-and $r_k\in\lbrace 0,1\rbrace$ while $S$ is a nonnegative integer, we have
-
-$$
-T\in\lbrace 0,1\rbrace.
-$$
-
-If $T=0$, then
-
-$$
-p_k=q_k=p_{m-k}=q_{n-k}=0.
-$$
-
-Now suppose $T=1$. Then
-
-**(3)**
+### Step 1 (corner coefficients)
 
-$$
-p_k+q_k=1,
-\qquad
-p_{m-k}+q_{n-k}=1.
-$$
-
-Also, by **(2)** and **(1)**,
-
-**(4)**
-
-$$
-p_k q_{n-k}=0,
-\qquad
-p_{m-k} q_k=0.
-$$
+From $R_0 = R_{m+n} = 1$ we get $p_0 q_0 = 1$. The $i = 0$ summand of
+$R_n = \sum_i p_i q_{n-i}$ equals $p_0 q_n = p_0$, and every summand
+is non-negative, so $p_0 \le R_n \le 1$; symmetrically $q_0 \le 1$.
+With $p_0 q_0 = 1$ and $p_0, q_0 > 0$, this forces $p_0 = q_0 = 1$.
 
-Using **(3)**, we may write
-
-$$
-q_k=1-p_k,
-\qquad
-q_{n-k}=1-p_{m-k}.
-$$
+### Step 2 (diagonal constraints)
 
-Substituting into **(4)**, we get
+Since $p_i = 0$ for $i > m$, expanding around the boundary terms,
 
 $$
-p_k(1-p_{m-k})=0,
-\qquad
-p_{m-k}(1-p_k)=0.
+\begin{aligned}
+R_m &= 1 + q_m + S_1,       & S_1 &:= \sum_{i=1}^{m-1} p_i q_{m-i}, \\\\
+R_n &= 1 + q_{n-m} + S_2,   & S_2 &:= \sum_{i=1}^{m-1} p_i q_{n-i},
+\end{aligned}
 $$
 
-If $p_k=1$, then the first equation gives $p_{m-k}=1$. If $p_k<1$, then the
-second equation gives $p_{m-k}=0$, and then the first equation forces $p_k=0$.
-Thus
+with every summand $\ge 0$. The palindromic identity $R_m = R_n$
+together with $R_m, R_n \in \\{0, 1\\}$ forces the common value to be
+$1$ (otherwise $m = n$ would make it $\ge 2$); hence $m < n$ and
 
 $$
-p_k=p_{m-k}\in\lbrace 0,1\rbrace,
+q_m \\;=\\; q_{n-m} \\;=\\; 0, \qquad S_1 \\;=\\; S_2 \\;=\\; 0.
 $$
 
-and then **(3)** yields
+In particular, for every $1 \le i \le m - 1$,
 
 $$
-q_k=q_{n-k}=1-p_k\in\lbrace 0,1\rbrace.
+p_i q_{m-i} \\;=\\; 0 \qquad \text{and} \qquad p_i q_{n-i} \\;=\\; 0. \qquad (\dagger)
 $$
 
-This completes the induction. In particular, $p_k=p_{m-k}$ for
-$0\le k\le \lfloor m/2\rfloor$, and therefore $P$ is palindromic. Also every
-coefficient of $P$ lies in $\lbrace 0,1\rbrace$: indeed, for any index $t$, either
-$t\le \lfloor m/2\rfloor$ or $m-t\le \lfloor m/2\rfloor$, so the induction
-covers all coefficients.
+### Step 3 (inward induction)
 
-It remains to treat $Q$. Suppose some coefficient of $Q$ is not in $\lbrace 0,1\rbrace$,
-and let $i$ be minimal with this property. Then
+We prove by strong induction on $k$, for $0 \le k \le \lfloor m/2 \rfloor$,
 
 $$
-q_i\in(0,1).
+p_k, q_k \in \\{0, 1\\}, \qquad p_k = p_{m-k}, \qquad q_k = q_{n-k}. \qquad (\*)
 $$
 
-By minimality,
+The base case $k = 0$ is immediate. For $k \ge 1$, peel off the
+boundary terms:
 
 $$
-q_0,\dots,q_{i-1}\in\lbrace 0,1\rbrace,
+\begin{aligned}
+R_k &= p_k + q_k + T,           & T  &:= \sum_{i=1}^{k-1} p_i q_{k-i}, \\\\
+R_{m+n-k} &= p_{m-k} + q_{n-k} + T', & T' &:= \sum_{i=m-k+1}^{m-1} p_i q_{m+n-k-i}.
+\end{aligned}
 $$
 
-while we already know all coefficients of $P$ lie in $\lbrace 0,1\rbrace$. Therefore in
+The substitution $j = m - i$, together with the inductive symmetries
+$p_{m-j} = p_j$ and $q_{n-k+j} = q_{k-j}$, shows $T' = T$.
+Palindromicity $R_k = R_{m+n-k}$ then yields
 
 $$
-r_i=q_i+\sum_{a=1}^{\min(m,i)} p_a q_{i-a},
+p_k + q_k \\;=\\; p_{m-k} + q_{n-k}. \qquad (\ddagger)
 $$
 
-the sum
+Every factor in $T$ is in $\\{0, 1\\}$ by the induction hypothesis,
+so $T \in \mathbb{Z}_{\ge 0}$. Since $R_k = T + p_k + q_k \in \\{0,1\\}$
+and $p_k + q_k \ge 0$, we have $p_k + q_k \in \\{0, 1\\}$.
 
-$$
-N:=\sum_{a=1}^{\min(m,i)} p_a q_{i-a}
-$$
+If $p_k + q_k = 0$, non-negativity and $(\ddagger)$ give
+$p_k = q_k = p_{m-k} = q_{n-k} = 0$, so $(\*)$ holds.
 
-is a nonnegative integer. Hence
+If $p_k + q_k = 1$, the bounds $1 \le k \le m-1$ and
+$1 \le m-k \le m-1$ permit applying $(\dagger)$ at $i = k$ and $i = m-k$:
 
 $$
-q_i=r_i-N
+p_k q_{n-k} \\;=\\; 0, \qquad p_{m-k} q_k \\;=\\; 0.
 $$
 
-is an integer, contradicting $q_i\in(0,1)$.
+If $q_{n-k} = 0$, then $(\ddagger)$ forces $p_{m-k} = 1$; hence
+$p_{m-k} q_k = 0$ gives $q_k = 0$, so $p_k = 1$. If $q_{n-k} \ne 0$,
+then $p_k = 0$, so $q_k = 1$; then $p_{m-k} q_k = 0$ forces
+$p_{m-k} = 0$, and $(\ddagger)$ gives $q_{n-k} = 1$. Either way,
+$(\*)$ holds at $k$.
 
-Therefore every coefficient of $Q$ also lies in $\lbrace 0,1\rbrace$.
+### Step 4 ($P$ is a palindromic $0–1$ polynomial)
 
-Finally, since $P$ and $R$ are palindromic, we have
-
-$$
-P^\ast=P,
-\qquad
-R^\ast=R.
-$$
+By $(\*)$, $p_k \in \\{0, 1\\}$ for $k \le \lfloor m/2 \rfloor$; the
+identity $p_k = p_{m-k}$ extends this to $k \le m$. Since $p_k = 0$
+for $k > m$, $P$ has coefficients in $\\{0, 1\\}$, and the same
+identity gives palindromicity.
 
-Because $P$ and $Q$ are monic, reversing the identity $R=PQ$ gives
+### Step 5 ($Q$ has $0–1$ coefficients)
 
-$$
-R^\ast=P^\ast Q^\ast.
-$$
+By Step 4, $P \in \mathbb{Z}[x]$ and is monic, and
+$R \in \mathbb{Z}[x]$ by hypothesis. Polynomial long division over
+$\mathbb{Z}$ — which succeeds because $P$ has leading coefficient $1$
+— yields $Q = R/P \in \mathbb{Z}[x]$. Combined with the hypothesis
+that $Q$ has non-negative coefficients, $q_k \in \mathbb{Z}_{\ge 0}$
+for every $k$.
 
-Hence
+For each $k$, using $p_0 = 1$ from Step 1 and non-negativity of all
+summands,
 
 $$
-PQ = R = R^\ast = P^\ast Q^\ast = P Q^\ast.
+R_k \\;=\\; p_0 q_k + \sum_{i \ge 1} p_i q_{k-i} \\;\ge\\; q_k.
 $$
 
-Since $P\neq 0$, cancellation in $\mathbb{R}[x]$ yields
-
-$$
-Q=Q^\ast.
-$$
+Hence $q_k \le R_k \le 1$, and $q_k \in \mathbb{Z}_{\ge 0}$ forces
+$q_k \in \\{0, 1\\}$.
 
-Thus $Q$ is palindromic.
+### Step 6 ($Q$ is palindromic)
 
-So both $P$ and $Q$ are palindromic $0-1$ polynomials.
+Let $\widetilde{P}$ denote the reverse of $P$. Since
+$P(0) = p_0 = 1 \ne 0$ and $P$ is palindromic, $\widetilde{P} = P$;
+similarly $R(0) = 1 \ne 0$ and $\widetilde{R} = R$. In the integral
+domain $\mathbb{R}[x]$ one has
+$\widetilde{R} = \widetilde{P} \cdot \widetilde{Q} = P \cdot \widetilde{Q}$;
+combined with $\widetilde{R} = R = P \cdot Q$ and cancelling
+$P \ne 0$, we obtain $\widetilde{Q} = Q$, i.e., $Q$ is palindromic.
+$\blacksquare$
 
 ## References
 

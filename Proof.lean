@@ -64,45 +64,40 @@ lemma conv_at_degree_right_decomp {p q : ℕ → ℝ} {m n : ℕ}
     show m = (m - 1) + 1 from by omega, Finset.sum_range_succ]
   simp [show (m - 1) + 1 = m from by omega]
 
-lemma conv_high {p q : ℕ → ℝ} {m n k : ℕ}
-    (hk : k ≤ m) (hmn : m ≤ n)
-    (hp_support : ∀ i, m < i → p i = 0) (hq_support : ∀ i, n < i → q i = 0) :
-    conv p q (m + n - k) = ∑ i ∈ Finset.range (k + 1), p (m - k + i) * q (n - i) := by
-  unfold conv
-  rw [show m + n - k + 1 = (m - k) + (n + 1) from by omega,
-    Finset.sum_range_add (f := fun i ↦ p i * q (m + n - k - i))]
-  have hhead : (∑ i ∈ Finset.range (m - k), p i * q (m + n - k - i)) = 0 :=
-    Finset.sum_eq_zero fun i hi ↦ by
-      rw [hq_support _ (by have := Finset.mem_range.mp hi; omega), mul_zero]
-  rw [hhead, zero_add]
-  simp_rw [show ∀ i, m + n - k - (m - k + i) = n - i from fun i ↦ by omega]
-  rw [show n + 1 = (k + 1) + (n - k) from by omega,
-    Finset.sum_range_add (f := fun i ↦ p (m - k + i) * q (n - i))]
-  have htail : (∑ i ∈ Finset.range (n - k), p (m - k + (k + 1 + i)) * q (n - (k + 1 + i))) = 0 :=
-    Finset.sum_eq_zero fun i _ ↦ by rw [hp_support _ (by omega), zero_mul]
-  rw [htail, add_zero]
-
 lemma conv_high_decomp {p q : ℕ → ℝ} {m n k : ℕ}
     (hk0 : 0 < k) (hk : k ≤ m) (hmn : m ≤ n)
     (hp_support : ∀ i, m < i → p i = 0) (hq_support : ∀ i, n < i → q i = 0) :
     conv p q (m + n - k) =
       (∑ i ∈ Finset.range (k - 1), p (m - (i + 1)) * q (n - k + (i + 1))) +
         p m * q (n - k) + p (m - k) * q n := by
-  rw [conv_high hk hmn hp_support hq_support]
-  -- Split: ∑_{0..k} = p(m-k)·q(n) + ∑_{1..k-1} + p(m)·q(n-k)
-  rw [Finset.sum_range_succ' (f := fun i ↦ p (m - k + i) * q (n - i))]
+  -- Step 1: reduce conv to a finite sum over range (k + 1) using supports of p and q.
+  have hstep :
+      conv p q (m + n - k) = ∑ i ∈ Finset.range (k + 1), p (m - k + i) * q (n - i) := by
+    unfold conv
+    rw [show m + n - k + 1 = (m - k) + (n + 1) from by omega,
+      Finset.sum_range_add (f := fun i ↦ p i * q (m + n - k - i))]
+    have hhead : (∑ i ∈ Finset.range (m - k), p i * q (m + n - k - i)) = 0 :=
+      Finset.sum_eq_zero fun i hi ↦ by
+        rw [hq_support _ (by have := Finset.mem_range.mp hi; omega), mul_zero]
+    rw [hhead, zero_add]
+    simp_rw [show ∀ i, m + n - k - (m - k + i) = n - i from fun i ↦ by omega]
+    rw [show n + 1 = (k + 1) + (n - k) from by omega,
+      Finset.sum_range_add (f := fun i ↦ p (m - k + i) * q (n - i))]
+    have htail : (∑ i ∈ Finset.range (n - k), p (m - k + (k + 1 + i)) * q (n - (k + 1 + i))) = 0 :=
+      Finset.sum_eq_zero fun i _ ↦ by rw [hp_support _ (by omega), zero_mul]
+    rw [htail, add_zero]
+  -- Step 2: peel off boundary terms and reflect the middle sum.
+  rw [hstep, Finset.sum_range_succ' (f := fun i ↦ p (m - k + i) * q (n - i))]
   simp only [Nat.sub_zero, add_zero]
   have hk' : (k - 1) + 1 = k := by omega
-  rw [← hk', Finset.sum_range_succ, hk',
-    show m - k + k = m from by omega, show n - k = n - k from rfl]
-  -- Reflect the middle sum
+  rw [← hk', Finset.sum_range_succ, hk', show m - k + k = m from by omega]
   congr 1; congr 1
   rw [← Finset.sum_range_reflect
     (fun i ↦ p (m - (i + 1)) * q (n - k + (i + 1))) (k - 1)]
   refine Finset.sum_congr rfl fun i hi ↦ ?_
   have hi_lt := Finset.mem_range.mp hi
-  have h1 : (k - 1) - 1 - i + 1 = k - 1 - i := by omega
-  simp only [h1, show m - (k - 1 - i) = m - k + (i + 1) from by omega,
+  simp only [show (k - 1) - 1 - i + 1 = k - 1 - i from by omega,
+    show m - (k - 1 - i) = m - k + (i + 1) from by omega,
     show n - k + (k - 1 - i) = n - (i + 1) from by omega]
 
 lemma constant_coeffs_one_of_palindromic_zero_one_ordered {P Q : ℝ[X]}
@@ -117,18 +112,19 @@ lemma constant_coeffs_one_of_palindromic_zero_one_ordered {P Q : ℝ[X]}
     simpa [IsPalindromic, hdegPQ, htop] using hpal 0 (Nat.zero_le _)
   have hprod : P.coeff 0 * Q.coeff 0 = 1 := by
     simpa [Polynomial.mul_coeff_zero] using hR0
-  have hP0_le_coeff : P.coeff 0 ≤ (P * Q).coeff Q.natDegree := by
+  -- When B is monic and both A, B have nonneg coefficients, A.coeff 0 ≤ (A * B).coeff B.natDegree
+  -- (the i = 0 term of the convolution gives A(0) · B(natDeg B) = A(0) · 1).
+  have bound : ∀ {A B : ℝ[X]}, B.Monic → HasNonnegCoeffs A → HasNonnegCoeffs B →
+      A.coeff 0 ≤ (A * B).coeff B.natDegree := by
+    intro A B hB hAnn hBnn
     rw [coeff_mul_eq_conv]; unfold conv
-    simpa [Nat.sub_zero, hQmonic.coeff_natDegree, mul_one] using
-      (Finset.single_le_sum (s := Finset.range (Q.natDegree + 1)) (a := 0)
-        (f := fun i ↦ P.coeff i * Q.coeff (Q.natDegree - i))
-        (fun i _ ↦ mul_nonneg (hPnonneg i) (hQnonneg _)) (by simp))
+    simpa [Nat.sub_zero, hB.coeff_natDegree, mul_one] using
+      (Finset.single_le_sum (s := Finset.range (B.natDegree + 1)) (a := 0)
+        (f := fun i ↦ A.coeff i * B.coeff (B.natDegree - i))
+        (fun i _ ↦ mul_nonneg (hAnn i) (hBnn _)) (by simp))
+  have hP0_le_coeff : P.coeff 0 ≤ (P * Q).coeff Q.natDegree := bound hQmonic hPnonneg hQnonneg
   have hQ0_le_coeff : Q.coeff 0 ≤ (P * Q).coeff P.natDegree := by
-    rw [coeff_mul_eq_conv]; unfold conv
-    simpa [Nat.sub_self, hPmonic.coeff_natDegree, one_mul] using
-      (Finset.single_le_sum (s := Finset.range (P.natDegree + 1)) (a := P.natDegree)
-        (f := fun i ↦ P.coeff i * Q.coeff (P.natDegree - i))
-        (fun i _ ↦ mul_nonneg (hPnonneg i) (hQnonneg _)) (by simp))
+    rw [mul_comm]; exact bound hPmonic hQnonneg hPnonneg
   have hP0_le : P.coeff 0 ≤ 1 :=
     hP0_le_coeff.trans (by rcases h01 Q.natDegree with h | h <;> linarith)
   have hQ0_le : Q.coeff 0 ≤ 1 :=
@@ -142,17 +138,16 @@ lemma constant_coeffs_one_of_palindromic_zero_one_ordered {P Q : ℝ[X]}
 lemma reverse_eq_self_of_isPalindromic {P : ℝ[X]} (hP0 : P.coeff 0 ≠ 0)
     (hpal : IsPalindromic P) :
     P.reverse = P := by
+  have hdeg : P.reverse.natDegree = P.natDegree := by
+    rw [Polynomial.reverse_natDegree,
+      Polynomial.natTrailingDegree_eq_zero_of_constantCoeff_ne_zero (by simpa using hP0),
+      Nat.sub_zero]
   ext k
   by_cases hk : k ≤ P.natDegree
   · rw [Polynomial.coeff_reverse, Polynomial.revAt_le hk, hpal k hk]
-  · have hklt : P.natDegree < k := Nat.lt_of_not_ge hk
-    have hdeg : P.reverse.natDegree = P.natDegree := by
-      rw [Polynomial.reverse_natDegree,
-        show P.natTrailingDegree = 0 by
-          simpa using Polynomial.natTrailingDegree_eq_zero_of_constantCoeff_ne_zero hP0,
-        Nat.sub_zero]
-    rw [Polynomial.coeff_eq_zero_of_natDegree_lt (by omega),
-      Polynomial.coeff_eq_zero_of_natDegree_lt hklt]
+  · have hk' : P.natDegree < k := Nat.lt_of_not_ge hk
+    rw [Polynomial.coeff_eq_zero_of_natDegree_lt (hdeg ▸ hk'),
+      Polynomial.coeff_eq_zero_of_natDegree_lt hk']
 
 lemma isPalindromic_right_of_mul_of_left {P Q : ℝ[X]}
     (hPmonic : P.Monic) (hQmonic : Q.Monic)
@@ -178,24 +173,13 @@ theorem ordered_zero_one_of_palindromic_conv {p q : ℕ → ℝ} {m n : ℕ}
     (hp_nonneg : ∀ i, 0 ≤ p i) (hq_nonneg : ∀ i, 0 ≤ q i)
     (hpal : ∀ k, k ≤ m + n → conv p q k = conv p q (m + n - k))
     (h01 : ∀ k, conv p q k = 0 ∨ conv p q k = 1) :
-    (∀ i, p i = 0 ∨ p i = 1) ∧ (∀ i, q i = 0 ∨ q i = 1) ∧
-      ∀ i, i ≤ m → p i = p (m - i) := by
+    (∀ i, p i = 0 ∨ p i = 1) ∧ ∀ i, i ≤ m → p i = p (m - i) := by
   by_cases hm0 : m = 0
   · subst hm0
-    have hp_bit : ∀ i, p i = 0 ∨ p i = 1 := fun i ↦ by
-      rcases eq_or_ne i 0 with rfl | hi
-      · exact Or.inr hp0
-      · exact Or.inl (hp_support i (Nat.pos_of_ne_zero hi))
-    have hq_bit : ∀ i, q i = 0 ∨ q i = 1 := fun i ↦ by
-      by_cases hi : n < i
-      · exact Or.inl (hq_support i hi)
-      · have : conv p q i = q i := by
-          rw [conv, Finset.sum_range_succ']; simp [hp0]
-          exact Finset.sum_eq_zero fun j _ ↦ by
-            show p (j + 1) * q (i - (j + 1)) = 0
-            rw [hp_support (j + 1) (Nat.succ_pos _), zero_mul]
-        simpa [this] using h01 i
-    exact ⟨hp_bit, hq_bit, fun i hi ↦ by simp [Nat.eq_zero_of_le_zero hi]⟩
+    refine ⟨fun i ↦ ?_, fun i hi ↦ by simp [Nat.eq_zero_of_le_zero hi]⟩
+    rcases eq_or_ne i 0 with rfl | hi
+    · exact Or.inr hp0
+    · exact Or.inl (hp_support i (Nat.pos_of_ne_zero hi))
   · have hm_pos : 0 < m := Nat.pos_of_ne_zero hm0
     have hm_lt_n : m < n := Nat.lt_of_le_of_ne hmn fun hEq ↦ by
       have hconvm : conv p q m = (∑ i ∈ Finset.range (m - 1), p (i + 1) * q (m - (i + 1))) + 1 + 1 := by
@@ -306,22 +290,60 @@ theorem ordered_zero_one_of_palindromic_conv {p q : ℕ → ℝ} {m n : ℕ}
       · by_cases hi_half : i ≤ m / 2
         · exact (hgood i hi_half).2.2.1
         · rw [hp_symm i (by omega)]; exact (hgood (m - i) (by omega)).2.2.1
-    have hq_bit : ∀ i, q i = 0 ∨ q i = 1 := by
-      intro i; refine Nat.strong_induction_on i ?_; intro i ih
-      by_cases hi_n : n < i
-      · exact Or.inl (hq_support i hi_n)
-      · by_cases hi0 : i = 0
-        · exact Or.inr (by simpa [hi0] using hq0)
-        · obtain ⟨t, ht⟩ : ∃ t : ℕ, (t : ℝ) = ∑ a ∈ Finset.range i, p (a + 1) * q (i - (a + 1)) :=
-            exists_natCast_eq_sum_of_zero_one fun a ha ↦
-              mul_eq_zero_or_one (hp_bit (a + 1))
-                (ih (i - (a + 1)) (by have := Finset.mem_range.mp ha; omega))
-          have hconv_i : conv p q i = (∑ a ∈ Finset.range i, p (a + 1) * q (i - (a + 1))) + q i := by
-            rw [conv, Finset.sum_range_succ']; simp [hp0, add_comm]
-          have h01i : q i + (t : ℝ) = 0 ∨ q i + (t : ℝ) = 1 := by
-            simpa [hconv_i, ht, add_assoc, add_left_comm, add_comm] using h01 i
-          exact eq_zero_or_one_of_nonneg_add_natCast_eq_zero_or_one (hq_nonneg i) h01i
-    exact ⟨hp_bit, ⟨hq_bit, hp_symm⟩⟩
+    exact ⟨hp_bit, hp_symm⟩
+
+/-- Global argument: if `P` is a monic `0`-`1` polynomial with `P.coeff 0 = 1` and
+`P * Q` is a `0`-`1` polynomial with `Q` having non-negative coefficients, then
+`Q` is a `0`-`1` polynomial. Formalizes the "`Q = R/P ∈ ℤ[x]` + dominance `Q ≤ R`"
+argument by lifting `P` and `R` to `ℤ[X]` and using `Polynomial.map_divByMonic`. -/
+lemma isZeroOnePoly_factor {P Q : ℝ[X]} (hPmonic : P.Monic)
+    (hP01 : IsZeroOnePoly P) (hP0 : P.coeff 0 = 1)
+    (hQnn : HasNonnegCoeffs Q) (hR01 : IsZeroOnePoly (P * Q)) :
+    IsZeroOnePoly Q := by
+  let toZ : ℝ[X] → ℤ[X] := fun f ↦ ∑ k ∈ f.support, (X : ℤ[X]) ^ k
+  have toZ_map : ∀ {f : ℝ[X]}, (∀ k, f.coeff k = 0 ∨ f.coeff k = 1) →
+      (toZ f).map (Int.castRingHom ℝ) = f := fun {f} h01 ↦ by
+    ext n
+    simp [toZ, Polynomial.coeff_map, Polynomial.finset_sum_coeff, Polynomial.coeff_X_pow]
+    rcases h01 n with hn | hn <;> simp [hn]
+  have hP_map := toZ_map hP01
+  have hR_map := toZ_map hR01
+  have hcast_inj : Function.Injective (Int.castRingHom ℝ) :=
+    RingHom.injective_int (Int.castRingHom ℝ)
+  have hP_Z_monic : (toZ P).Monic := by
+    have hmem : P.natDegree ∈ P.support :=
+      Polynomial.mem_support_iff.mpr (hPmonic.coeff_natDegree ▸ one_ne_zero)
+    have hdeg : (toZ P).natDegree = P.natDegree := by
+      have h := congrArg Polynomial.natDegree hP_map
+      rwa [Polynomial.natDegree_map_eq_of_injective hcast_inj] at h
+    rw [Polynomial.Monic, Polynomial.leadingCoeff, hdeg]
+    simp only [toZ, Polynomial.finset_sum_coeff, Polynomial.coeff_X_pow]
+    rw [Finset.sum_eq_single P.natDegree
+      (fun j _ hj ↦ if_neg (Ne.symm hj)) (fun h ↦ (h hmem).elim)]
+    simp
+  have hQ_eq : Q = (P * Q) /ₘ P := (Polynomial.mul_divByMonic_cancel_left _ hPmonic).symm
+  have hQ_int : ∀ k, ∃ n : ℤ, (n : ℝ) = Q.coeff k := fun k ↦ by
+    refine ⟨((toZ (P * Q)) /ₘ (toZ P)).coeff k, ?_⟩
+    have h := Polynomial.map_divByMonic (Int.castRingHom ℝ) hP_Z_monic (p := toZ (P * Q))
+    rw [hR_map, hP_map] at h
+    calc ((((toZ (P * Q)) /ₘ (toZ P)).coeff k : ℤ) : ℝ)
+        = ((toZ (P * Q) /ₘ toZ P).map (Int.castRingHom ℝ)).coeff k := by
+          simp [Polynomial.coeff_map]
+      _ = (P * Q /ₘ P).coeff k := by rw [h]
+      _ = Q.coeff k := by rw [← hQ_eq]
+  have hQ_le : ∀ k, Q.coeff k ≤ 1 := fun k ↦ by
+    have hdom : Q.coeff k ≤ (P * Q).coeff k := by
+      rw [coeff_mul_eq_conv]; unfold conv
+      simpa [hP0] using Finset.single_le_sum (s := Finset.range (k + 1)) (a := 0)
+        (f := fun i ↦ P.coeff i * Q.coeff (k - i))
+        (fun i _ ↦ mul_nonneg (by rcases hP01 i with h | h <;> linarith) (hQnn _))
+        (by simp)
+    rcases hR01 k with h | h <;> linarith [hQnn k]
+  intro k
+  obtain ⟨n, hn⟩ := hQ_int k
+  have hge : (0 : ℤ) ≤ n := by exact_mod_cast (hn ▸ hQnn k : (0 : ℝ) ≤ (n : ℝ))
+  have hle : n ≤ 1 := by exact_mod_cast (hn ▸ hQ_le k : (n : ℝ) ≤ 1)
+  interval_cases n <;> [left; right] <;> simpa using hn.symm
 
 lemma factors_zero_one_of_mul_palindromic_ordered {P Q : ℝ[X]}
     (hmn : P.natDegree ≤ Q.natDegree)
@@ -334,7 +356,7 @@ lemma factors_zero_one_of_mul_palindromic_ordered {P Q : ℝ[X]}
       hPnonneg hQnonneg hpal h01
   have hdegPQ : (P * Q).natDegree = P.natDegree + Q.natDegree := hPmonic.natDegree_mul hQmonic
   have hordered :
-      IsZeroOnePoly P ∧ IsZeroOnePoly Q ∧
+      IsZeroOnePoly P ∧
         ∀ k, k ≤ P.natDegree → P.coeff k = P.coeff (P.natDegree - k) := by
     simpa [IsZeroOnePoly, HasNonnegCoeffs] using
       ordered_zero_one_of_palindromic_conv (p := P.coeff) (q := Q.coeff) (m := P.natDegree)
@@ -346,10 +368,12 @@ lemma factors_zero_one_of_mul_palindromic_ordered {P Q : ℝ[X]}
           have hk' : k ≤ (P * Q).natDegree := by simpa [hdegPQ] using hk
           simpa [coeff_mul_eq_conv, hdegPQ, IsPalindromic] using hpal k hk')
         (fun k ↦ by simpa [coeff_mul_eq_conv, IsZeroOnePoly] using h01 k)
-  have hPpal : IsPalindromic P := hordered.2.2
+  have hPpal : IsPalindromic P := hordered.2
   have hQpal : IsPalindromic Q :=
     isPalindromic_right_of_mul_of_left hPmonic hQmonic hPpal hpal
-  exact ⟨⟨hordered.1, hPpal⟩, ⟨hordered.2.1, hQpal⟩⟩
+  have hQ01 : IsZeroOnePoly Q :=
+    isZeroOnePoly_factor hPmonic hordered.1 hP0 hQnonneg h01
+  exact ⟨⟨hordered.1, hPpal⟩, ⟨hQ01, hQpal⟩⟩
 
 theorem factors_zero_one_of_mul_palindromic {P Q : ℝ[X]}
     (hPmonic : P.Monic) (hQmonic : Q.Monic)
