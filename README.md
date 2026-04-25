@@ -61,20 +61,9 @@ coefficient $R_k$ is then the sum along the anti-diagonal $i+j=k$.
 The four extreme corners of this grid, and the two anti-diagonals at
 $i+j=m$ and $i+j=n$, are the only geometric features used below.
 
-```
-              q_0   q_1   q_2   ...   q_{n-1}   q_n
-            +----------------------------------------+
-   p_0      |  *     .     .    ...     .         *  |
-            |                                        |
-   p_1      |  .     .     .    ...     .         .  |
-            |                                        |
-    :       |              .                         |
-            |                                        |
-   p_{m-1}  |  .     .     .    ...     .         .  |
-            |                                        |
-   p_m      |  *     .     .    ...     .         *  |
-            +----------------------------------------+
-```
+<p align="center">
+  <img src="coefficient_grid.png" alt="Coefficient grid with anti-diagonals">
+</p>
 
 Cell $(i, j)$ holds the product $p_i q_j$; the coefficient $R_k$ is
 the sum along the anti-diagonal $i + j = k$. The four starred corners
