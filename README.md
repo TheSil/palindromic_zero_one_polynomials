@@ -44,6 +44,16 @@ The command should finish without errors when the formalization is valid. On
 the first run it may also download the Lean toolchain and the pinned `mathlib4`
 dependency.
 
+The theorem statement in Lean is:
+
+```lean
+theorem factors_zero_one_of_mul_palindromic {P Q : ℝ[X]}
+    (hPmonic : P.Monic) (hQmonic : Q.Monic)
+    (hPnonneg : HasNonnegCoeffs P) (hQnonneg : HasNonnegCoeffs Q)
+    (hpal : IsPalindromic (P * Q)) (h01 : IsZeroOnePoly (P * Q)) :
+    (IsZeroOnePoly P ∧ IsPalindromic P) ∧ (IsZeroOnePoly Q ∧ IsPalindromic Q)
+```
+
 ## Informal Proof
 
 The following proof is inspired by a proof for polynomials of the form $x^k+\cdots+x+1$.
